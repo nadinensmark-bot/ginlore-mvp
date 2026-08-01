@@ -9,7 +9,7 @@ export default function Onboarding() {
   return (
     <div className="screen no-tabs" style={{ justifyContent: 'center', gap: 22, paddingBottom: 60 }}>
       <div className="col" style={{ alignItems: 'center', gap: 10, textAlign: 'center' }}>
-        <img src="/logo.png" alt="" width="76" height="76" style={{ borderRadius: 20 }} />
+        <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" width="76" height="76" style={{ borderRadius: 20 }} />
         <span className="brand" style={{ fontSize: 44 }}>
           ginlore
         </span>
