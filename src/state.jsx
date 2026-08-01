@@ -5,7 +5,7 @@ import { STYLE_KEYS } from './data/styles'
 import { ALL_LESSONS, CHAPTERS } from './data/lessons'
 import { LEVELS } from './data/cards'
 
-const KEY = 'ginlore-mvp-v1'
+const KEY = 'ginlore-mvp-v2' // v2: hodnocení 1–5 větviček
 
 export function todayStr() {
   const d = new Date()

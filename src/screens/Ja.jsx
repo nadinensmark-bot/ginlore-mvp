@@ -54,8 +54,12 @@ export default function Ja() {
             <Axis l="Jemný" r="Intenzivní" v={d.profile.jemnyIntenzivni} />
             {d.profile.topTags.length > 0 && (
               <span className="sub">
-                Jdeš po {d.profile.topTags.slice(0, 2).join(' a ')}ch ginech. Podle toho ti
-                doporučujeme na Objevuj.
+                Jdeš po{' '}
+                {d.profile.topTags
+                  .slice(0, 2)
+                  .map((t) => t.replace(/ý$/, 'ých'))
+                  .join(' a ')}{' '}
+                ginech. Podle toho ti doporučujeme na Objevuj.
               </span>
             )}
           </>

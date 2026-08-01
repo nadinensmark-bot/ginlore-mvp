@@ -61,7 +61,7 @@ export function RatingBadge({ value }) {
         color: 'var(--accent)',
       }}
     >
-      {String(value).replace('.', ',')}
+      {Number(value).toFixed(1).replace('.', ',')}
     </span>
   )
 }
