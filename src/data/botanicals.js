@@ -1,0 +1,78 @@
+// Almanach botanicals — obsah převzatý z prototypu Ginlore.
+// MVP obsahuje 8 plně zpracovaných botanicals; cíl je 24.
+export const BOTANICALS = {
+  jalovec: {
+    n: 'Jalovec',
+    lat: 'Juniperus communis',
+    role: 'základ',
+    short: 'Bez něj to není gin. Pryskyřice, jehličí, tmavý les.',
+    text: 'Jediný botanical, který v ginu být musí — a musí být tou převládající chutí, jinak to podle evropských pravidel gin není. Používají se bobule, které ve skutečnosti nejsou bobule, ale šišky. Zrají dva až tři roky, takže sklizeň jednoho roku obsahuje zelené i černé naráz.',
+    notes: ['pryskyřice', 'jehličí', 'lesní podrost', 'pepř'],
+    try: 'Rozmáčkni bobulku mezi prsty a přivoň. Přesně tuhle vůni hledej v každém ginu jako první.',
+  },
+  koriandr: {
+    n: 'Koriandr',
+    lat: 'Coriandrum sativum',
+    role: 'druhý nejčastější',
+    short: 'Semínko, ne list. Šalvěj, citron a trocha pepře.',
+    text: 'Pozor — v ginu se používá semeno, ne ta bylina, kterou půlka lidí nesnáší. Semínko voní úplně jinak: dřevitě, citrusově, trochu jako šalvěj. Je to nejčastější partner jalovce, protože jeho citrusová linka umí gin rozjasnit bez přidání kůry.',
+    notes: ['citrusová kůra', 'šalvěj', 'dřevo', 'bílý pepř'],
+    try: 'Když v ginu cítíš „citrus, ale ne pomeranč", je to nejčastěji koriandr.',
+  },
+  andelika: {
+    n: 'Andělika lékařská',
+    lat: 'Angelica archangelica',
+    role: 'fixativ',
+    short: 'Kořen, který drží vůně pohromadě. Suchá zem, mech.',
+    text: 'Sama o sobě není zajímavá — voní jako suchá zem a mech. Ale je to fixativ: prodlouží a upevní ostatní vůně, aby se citrusy nerozplynuly za tři sekundy. Bez andělíky by se gin rozpadl na jednotlivé kousky. Používá se kořen, sušený.',
+    notes: ['suchá zem', 'mech', 'kořen', 'hořkost'],
+    try: 'Nehledej ji v nose, ale v tom, jak dlouho gin vydrží na jazyku.',
+  },
+  kubeba: {
+    n: 'Kubebový pepř',
+    lat: 'Piper cubeba',
+    role: 'dozvuk',
+    short: 'Pepř s ocáskem, který voní borovicí.',
+    text: 'Vypadá jako obyčejný pepř s ocáskem, ale chová se jinak — voní pryskyřicí a borovicí, takže umí prodloužit jalovec, aniž přidá pálivost. Palírny po něm sahají, když chtějí gin, který v ústech zůstane.',
+    notes: ['borovice', 'pryskyřice', 'eukalyptus'],
+    try: 'Hledej dozvuk vzadu na jazyku. Kdo cítí „dlouhý a lesní", cítí kubebu.',
+  },
+  kosatec: {
+    n: 'Kosatcový kořen',
+    lat: 'Iris pallida',
+    role: 'fixativ',
+    short: 'Orris. Voní jako fialky a funguje jako pojivo.',
+    text: 'Druhý klasický fixativ. Sušený kořen kosatce se musí několik let odležet, než začne vonět — teprve pak z něj vylezou fialky a pudrová jemnost. Drží dohromady květinové giny stejně, jako andělika drží ty jalovcové.',
+    notes: ['fialka', 'pudr', 'hlína'],
+    try: 'Květinový gin, který nevoní parfémem, ale spíš pudrem — to je orris.',
+  },
+  kardamom: {
+    n: 'Kardamom',
+    lat: 'Elettaria cardamomum',
+    role: 'koření',
+    short: 'Eukalyptus a citron v jednom.',
+    text: 'Zelený kardamom dává ginu chladivou, mentolově citrusovou linku. Je hodně silný, takže jde o gramy — přepálený kardamom udělá z ginu žvýkačku. V New Western ginech je jedním z nejčastějších způsobů, jak vytlačit jalovec do pozadí.',
+    notes: ['eukalyptus', 'citron', 'mentol'],
+    try: 'Když gin chladí, i když je teplý, je to nejčastěji kardamom.',
+  },
+  lekorice: {
+    n: 'Lékořice',
+    lat: 'Glycyrrhiza glabra',
+    role: 'sladidlo bez cukru',
+    short: 'Sladí, aniž by se přidával cukr.',
+    text: 'Kořen lékořice obsahuje glycyrrhizin, který je desítky násobně sladší než cukr. Palírny ji používají, aby byl gin vnímaný jako plnější a jemnější — bez toho, aby porušily pravidlo o cukru v London Dry. Přidává i dřevitou hořkost na konci.',
+    notes: ['sladká', 'dřevo', 'anýz'],
+    try: 'Cítíš sladko, ale gin je „dry"? To je lékořice.',
+  },
+  citrus: {
+    n: 'Citrusová kůra',
+    lat: 'Citrus spp.',
+    role: 'jiskra',
+    short: 'Citron, pomeranč, grep — svrchní vrstva.',
+    text: 'Kůra dodává silice, které jsou první, co ucítíš, a první, co se vytratí. Proto se často přidává až do posledního průchodu destilace nebo do košíku s párou. Sušená kůra chutná jinak než svěží — sušená je hlubší a marmeládovější.',
+    notes: ['citron', 'pomeranč', 'grep', 'marmeláda'],
+    try: 'Přivoň hned po nalití a pak znovu po minutě. Ten rozdíl je citrusová kůra.',
+  },
+}
+
+export const BOTANICALS_TOTAL_TARGET = 24
