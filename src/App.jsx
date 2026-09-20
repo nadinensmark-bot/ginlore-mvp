@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { NavProvider, useNav } from './nav'
 import { useStore } from './state'
 import Onboarding from './screens/Onboarding'
@@ -16,6 +17,8 @@ import Zapis from './screens/Zapis'
 import Karta from './screens/Karta'
 import Feed from './screens/Feed'
 import Ja from './screens/Ja'
+// Skener (ZXing) je těžký — načte se až při otevření.
+const Sken = lazy(() => import('./screens/Sken'))
 
 const SCREENS = {
   objevuj: Objevuj,
@@ -33,9 +36,10 @@ const SCREENS = {
   karta: Karta,
   feed: Feed,
   ja: Ja,
+  sken: Sken,
 }
 
-const NO_TABS = ['lekce', 'degustace', 'zapis']
+const NO_TABS = ['lekce', 'degustace', 'zapis', 'sken']
 
 const TABS = [
   { id: 'objevuj', ico: '🔍', label: 'Objevuj', owns: ['objevuj'] },
@@ -65,7 +69,9 @@ function Shell() {
   return (
     <div className="phone">
       <div className={'screen' + (showTabs ? '' : ' no-tabs')} key={nav.stack.length + cur.name}>
-        <Screen params={cur.params} />
+        <Suspense fallback={<div className="sub" style={{ padding: 20 }}>Načítám…</div>}>
+          <Screen params={cur.params} />
+        </Suspense>
       </div>
       {showTabs && (
         <nav className="tabbar">

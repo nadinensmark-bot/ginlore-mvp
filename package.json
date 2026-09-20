@@ -7,9 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "gen:seed": "node scripts/gen-seed.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.3",
+    "@zxing/browser": "^0.2.1",
+    "@zxing/library": "^0.23.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

@@ -44,6 +44,14 @@ export default function Objevuj() {
         )}
       </div>
 
+      <button
+        className="btn"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+        onClick={() => nav.push('sken')}
+      >
+        <span style={{ fontSize: 18 }}>📷</span> Skenovat lahev
+      </button>
+
       {query ? (
         <Section title={`Výsledky (${results.length})`}>
           {results.map((g) => {

@@ -111,7 +111,12 @@ export default function Zapis({ params }) {
           <button
             className={'btn' + (ng.name.trim() ? '' : ' disabled')}
             onClick={() => {
-              const id = addUserGin({ ...ng, name: ng.name.trim(), botanicals: ['jalovec'] })
+              const id = addUserGin({
+                ...ng,
+                name: ng.name.trim(),
+                botanicals: ['jalovec'],
+                ...(params.barcode ? { barcode: params.barcode } : {}),
+              })
               setGinId(id)
             }}
           >
