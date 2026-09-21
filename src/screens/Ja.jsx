@@ -4,7 +4,7 @@ import { BOTANICALS_TOTAL_TARGET } from '../data/botanicals'
 
 export default function Ja() {
   const nav = useNav()
-  const { s, exportData, resetAll, say } = useStore()
+  const { s, exportData, resetAll, say, backendEnabled, user, admin, sync } = useStore()
   const d = useDerived()
 
   return (
@@ -41,6 +41,20 @@ export default function Ja() {
         <Stat n={`${d.botsMet.size} / ${BOTANICALS_TOTAL_TARGET}`} t="botanicals" />
         <Stat n={`${d.stylesTasted.length} / 7`} t="stylů" />
       </div>
+
+      {backendEnabled && (
+        <button className="card" style={{ flexDirection: 'row', alignItems: 'center' }} onClick={() => nav.push('ucet')}>
+          <div className="col" style={{ flex: 1, gap: 2 }}>
+            <span style={{ fontWeight: 600 }}>{user ? 'Můj účet' : 'Přihlásit se / synchronizovat'}</span>
+            <span className="tiny">
+              {user
+                ? `${user.email}${admin ? ' · admin' : ''} · ${sync.status === 'syncing' ? 'synchronizuji…' : sync.status === 'error' ? 'chyba syncu' : 'uloženo v cloudu ✓'}`
+                : 'ulož data do cloudu — přežijí i na jiném telefonu'}
+            </span>
+          </div>
+          <span className="tiny">›</span>
+        </button>
+      )}
 
       <div className="card" style={{ gap: 12 }}>
         <div className="row between">

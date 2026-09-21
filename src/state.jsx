@@ -4,6 +4,18 @@ import { BOTANICALS } from './data/botanicals'
 import { STYLE_KEYS } from './data/styles'
 import { ALL_LESSONS, CHAPTERS } from './data/lessons'
 import { LEVELS } from './data/cards'
+import { isBackendEnabled } from './lib/supabase'
+import {
+  signIn as apiSignIn,
+  signUp as apiSignUp,
+  signOut as apiSignOut,
+  getUser,
+  onAuthChange,
+  isAdmin as apiIsAdmin,
+  pullState,
+  pushState,
+  mergeStates,
+} from './lib/api'
 
 const KEY = 'ginlore-mvp-v2' // v2: hodnocení 1–5 větviček
 
@@ -97,13 +109,78 @@ export function StoreProvider({ children }) {
   const [toast, setToastMsg] = useState('')
   const toastTimer = useRef(null)
 
+  // ── cloud sync (volitelné) ──
+  const [user, setUser] = useState(null)
+  const [admin, setAdmin] = useState(false)
+  const [sync, setSync] = useState({ status: isBackendEnabled ? 'idle' : 'off', error: null })
+  const sRef = useRef(s)
+  const pushTimer = useRef(null)
+  const skipNextPush = useRef(false)
+
   useEffect(() => {
+    sRef.current = s
     try {
       localStorage.setItem(KEY, JSON.stringify(s))
     } catch (e) {
       console.warn('ginlore: nelze uložit data', e)
     }
   }, [s])
+
+  // sleduj přihlášení
+  useEffect(() => {
+    if (!isBackendEnabled) return
+    let active = true
+    getUser().then((u) => active && setUser(u))
+    const unsub = onAuthChange((u) => active && setUser(u))
+    return () => {
+      active = false
+      unsub()
+    }
+  }, [])
+
+  // po přihlášení: slouči server + lokál, ulož zpět na server
+  useEffect(() => {
+    if (!isBackendEnabled || !user) {
+      setAdmin(false)
+      return
+    }
+    let cancelled = false
+    setSync({ status: 'syncing', error: null })
+    apiIsAdmin().then((a) => !cancelled && setAdmin(a))
+    ;(async () => {
+      try {
+        const server = await pullState()
+        if (cancelled) return
+        const merged = mergeStates(sRef.current, server)
+        skipNextPush.current = true
+        setS(merged)
+        await pushState(merged)
+        if (!cancelled) setSync({ status: 'idle', error: null })
+      } catch (e) {
+        if (!cancelled) setSync({ status: 'error', error: e.message })
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [user])
+
+  // debouncovaný push změn na server, dokud jsme přihlášení
+  useEffect(() => {
+    if (!isBackendEnabled || !user) return
+    if (skipNextPush.current) {
+      skipNextPush.current = false
+      return
+    }
+    clearTimeout(pushTimer.current)
+    pushTimer.current = setTimeout(() => {
+      setSync((c) => (c.status === 'error' ? c : { status: 'syncing', error: null }))
+      pushState(sRef.current)
+        .then(() => setSync({ status: 'idle', error: null }))
+        .catch((e) => setSync({ status: 'error', error: e.message }))
+    }, 1500)
+    return () => clearTimeout(pushTimer.current)
+  }, [s, user])
 
   const say = (msg) => {
     setToastMsg(msg)
@@ -135,6 +212,24 @@ export function StoreProvider({ children }) {
     toast,
     say,
     award,
+
+    // ── účet / sync ──
+    backendEnabled: isBackendEnabled,
+    user,
+    admin,
+    sync,
+    async signIn(email, password) {
+      return apiSignIn(email, password)
+    },
+    async signUp(email, password, name) {
+      return apiSignUp(email, password, name || s.profile?.name || '')
+    },
+    async signOut() {
+      await apiSignOut()
+      setUser(null)
+      setSync({ status: 'idle', error: null })
+      say('Odhlášeno — data zůstávají v tomto zařízení.')
+    },
 
     startFresh(name) {
       setS({ ...EMPTY, onboarded: true, profile: { name } })

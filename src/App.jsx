@@ -17,6 +17,8 @@ import Zapis from './screens/Zapis'
 import Karta from './screens/Karta'
 import Feed from './screens/Feed'
 import Ja from './screens/Ja'
+import Ucet from './screens/Ucet'
+import Moderace from './screens/Moderace'
 // Skener (ZXing) je těžký — načte se až při otevření.
 const Sken = lazy(() => import('./screens/Sken'))
 
@@ -37,9 +39,11 @@ const SCREENS = {
   feed: Feed,
   ja: Ja,
   sken: Sken,
+  ucet: Ucet,
+  moderace: Moderace,
 }
 
-const NO_TABS = ['lekce', 'degustace', 'zapis', 'sken']
+const NO_TABS = ['lekce', 'degustace', 'zapis', 'sken', 'ucet', 'moderace']
 
 const TABS = [
   { id: 'objevuj', ico: '🔍', label: 'Objevuj', owns: ['objevuj'] },
