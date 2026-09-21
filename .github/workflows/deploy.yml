@@ -28,6 +28,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          # Anon klíč je veřejný (chráněný RLS) — smí být v buildu i v repu.
+          VITE_SUPABASE_URL: https://mtxvbrcvpktmpdjzqxpx.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10eHZicmN2cGt0bXBkanpxeHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NTgzMDQsImV4cCI6MjEwMzEzNDMwNH0.reZTP7W-PBQwoAiWJdl3pMuC_8Re7EFszbqpiXq8Rkk
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
