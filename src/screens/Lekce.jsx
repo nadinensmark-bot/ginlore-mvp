@@ -2,11 +2,10 @@ import { useState } from 'react'
 import { useNav } from '../nav'
 import { useStore, useDerived } from '../state'
 import { lessonById, ALL_LESSONS } from '../data/lessons'
-import { ginById } from '../data/gins'
 
 export default function Lekce({ params }) {
   const nav = useNav()
-  const { s, say, completeLesson } = useStore()
+  const { s, say, completeLesson, ginById } = useStore()
   const d = useDerived()
   const lesson = lessonById(params.lessonId)
   const [step, setStep] = useState(0)
@@ -64,7 +63,7 @@ export default function Lekce({ params }) {
               Teorie je hezká věc
             </span>
             <span className="sub">
-              Máš doma {ginById(homeGins[0], s.userGins)?.name}. Dáš si dnes a zapíšeš ochutnávku?
+              Máš doma {ginById(homeGins[0])?.name}. Dáš si dnes a zapíšeš ochutnávku?
             </span>
             <button
               className="backlink"

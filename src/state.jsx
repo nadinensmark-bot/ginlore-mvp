@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { GINS, ginById } from './data/gins'
+import { GINS } from './data/gins'
 import { BOTANICALS } from './data/botanicals'
 import { STYLE_KEYS } from './data/styles'
 import { ALL_LESSONS, CHAPTERS } from './data/lessons'
@@ -15,6 +15,7 @@ import {
   pullState,
   pushState,
   mergeStates,
+  fetchCatalog,
 } from './lib/api'
 
 const KEY = 'ginlore-mvp-v2' // v2: hodnocení 1–5 větviček
@@ -108,6 +109,21 @@ export function StoreProvider({ children }) {
   const [s, setS] = useState(load)
   const [toast, setToastMsg] = useState('')
   const toastTimer = useRef(null)
+
+  // ── katalog ginů (server, s fallbackem na zabudovaný seed) ──
+  const [catalog, setCatalog] = useState(GINS)
+  useEffect(() => {
+    if (!isBackendEnabled) return
+    let active = true
+    fetchCatalog()
+      .then((list) => {
+        if (active && Array.isArray(list) && list.length) setCatalog(list)
+      })
+      .catch((e) => console.warn('ginlore: katalog ze serveru se nenačetl', e))
+    return () => {
+      active = false
+    }
+  }, [])
 
   // ── cloud sync (volitelné) ──
   const [user, setUser] = useState(null)
@@ -212,6 +228,10 @@ export function StoreProvider({ children }) {
     toast,
     say,
     award,
+
+    // ── katalog ──
+    catalog,
+    ginById: (id) => catalog.find((g) => g.id === id) || s.userGins.find((g) => g.id === id),
 
     // ── účet / sync ──
     backendEnabled: isBackendEnabled,
@@ -335,11 +355,12 @@ export function useStore() {
 // ── odvozené hodnoty ──
 
 export function useDerived() {
-  const { s } = useStore()
+  const { s, catalog } = useStore()
   return useMemo(() => {
-    const allGins = [...GINS, ...s.userGins]
+    const allGins = [...catalog, ...s.userGins]
+    const findGin = (id) => allGins.find((g) => g.id === id)
     const tastedIds = [...new Set(s.tastings.map((t) => t.ginId))]
-    const tastedGins = tastedIds.map((id) => ginById(id, s.userGins)).filter(Boolean)
+    const tastedGins = tastedIds.map((id) => findGin(id)).filter(Boolean)
 
     const stylesTasted = [...new Set(tastedGins.map((g) => g.style).filter(Boolean))]
     const countriesTasted = [...new Set(tastedGins.map((g) => g.country).filter(Boolean))]
@@ -399,7 +420,7 @@ export function useDerived() {
     s.tastings
       .filter((t) => t.rating >= 3.5)
       .forEach((t) => {
-        const g = ginById(t.ginId, s.userGins)
+        const g = findGin(t.ginId)
         if (!g) return
         likedStyles[g.style] = (likedStyles[g.style] || 0) + 1
         ;(g.botanicals || []).forEach((b) => (likedBots[b] = (likedBots[b] || 0) + 1))
@@ -506,5 +527,5 @@ export function useDerived() {
       communityFor,
       ginTastingCount,
     }
-  }, [s])
+  }, [s, catalog])
 }

@@ -337,6 +337,7 @@ const dbGinToApp = (r) => ({
   community: r.community_median != null
     ? { median: Number(r.community_median), count: r.community_count ?? 0 }
     : undefined,
+  image: r.image_url ?? undefined,
 })
 
 // ── Katalog ginů ─────────────────────────────────────────────
@@ -345,6 +346,18 @@ export async function fetchApprovedGins() {
   const { data, error } = await sb.from('gins').select('*').eq('status', 'approved')
   if (error) throw error
   return data
+}
+
+// Schválený katalog namapovaný do tvaru aplikace (pro celou appku, ne jen skener).
+export async function fetchCatalog() {
+  const sb = need()
+  const { data, error } = await sb
+    .from('gins')
+    .select('*')
+    .eq('status', 'approved')
+    .order('name', { ascending: true })
+  if (error) throw error
+  return (data ?? []).map(dbGinToApp)
 }
 
 // Uživatelský návrh nového ginu (moderace čeká). Vrací id.

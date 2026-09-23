@@ -3,23 +3,22 @@ import { useNav } from '../nav'
 import { useStore, useDerived } from '../state'
 import { STYLES } from '../data/styles'
 import { GinRow, Chip, RatingBadge } from '../components'
-import { ginById } from '../data/gins'
 
 const STOCK_ORDER = ['plná', 'půl', 'dochází', 'prázdná']
 
 export default function Bar() {
   const nav = useNav()
-  const { s, exportData, setStock } = useStore()
+  const { s, exportData, setStock, ginById } = useStore()
   const d = useDerived()
   const [filter, setFilter] = useState('doma')
 
   const doma = Object.entries(s.bar)
     .filter(([, v]) => v.status === 'doma')
-    .map(([id, v]) => ({ gin: ginById(id, s.userGins), stock: v.stock }))
+    .map(([id, v]) => ({ gin: ginById(id), stock: v.stock }))
     .filter((x) => x.gin)
   const chci = Object.entries(s.bar)
     .filter(([, v]) => v.status === 'chci')
-    .map(([id]) => ginById(id, s.userGins))
+    .map(([id]) => ginById(id))
     .filter(Boolean)
   const ochutnano = d.tastedGins
 
