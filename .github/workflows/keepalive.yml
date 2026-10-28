@@ -1,0 +1,22 @@
+name: Keep Supabase awake
+
+# Free tier Supabase uspí projekt po ~7 dnech nečinnosti.
+# Tenhle workflow pošle každý den malý dotaz do DB, aby neusnul — zdarma.
+# (Anon klíč je veřejný, chráněný RLS — smí být v repu.)
+
+on:
+  schedule:
+    - cron: '17 6 * * *' # každý den v 06:17 UTC
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST
+        run: |
+          code=$(curl -sS -o /dev/null -w "%{http_code}" \
+            "https://mtxvbrcvpktmpdjzqxpx.supabase.co/rest/v1/gins?select=id&limit=1" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10eHZicmN2cGt0bXBkanpxeHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NTgzMDQsImV4cCI6MjEwMzEzNDMwNH0.reZTP7W-PBQwoAiWJdl3pMuC_8Re7EFszbqpiXq8Rkk")
+          echo "Supabase REST HTTP $code"
+          test "$code" = "200"
