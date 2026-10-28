@@ -82,8 +82,26 @@ export async function getUser() {
 
 export function onAuthChange(cb) {
   if (!isBackendEnabled) return () => {}
-  const { data } = supabase.auth.onAuthStateChange((_event, session) => cb(session?.user ?? null))
+  const { data } = supabase.auth.onAuthStateChange((event, session) =>
+    cb(session?.user ?? null, event)
+  )
   return () => data.subscription.unsubscribe()
+}
+
+// Pošle e-mail s odkazem na reset hesla (míří zpět na tuto appku).
+export async function resetPassword(email) {
+  const sb = need()
+  const redirectTo =
+    typeof window !== 'undefined' ? window.location.origin + window.location.pathname : undefined
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo })
+  if (error) throw error
+}
+
+// Nastaví nové heslo (po příchodu přes recovery odkaz nebo pro přihlášeného).
+export async function updatePassword(password) {
+  const sb = need()
+  const { error } = await sb.auth.updateUser({ password })
+  if (error) throw error
 }
 
 export async function isAdmin() {

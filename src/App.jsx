@@ -55,8 +55,20 @@ const TABS = [
 
 function Shell() {
   const nav = useNav()
-  const { s, toast } = useStore()
+  const { s, toast, recovery } = useStore()
   const cur = nav.cur
+
+  // Příchod přes reset-hesla odkaz: ukaž rovnou nastavení nového hesla.
+  if (recovery) {
+    return (
+      <div className="phone">
+        <div className="screen no-tabs">
+          <Ucet />
+        </div>
+        {toast && <div className="toast">{toast}</div>}
+      </div>
+    )
+  }
 
   if (!s.onboarded) {
     return (

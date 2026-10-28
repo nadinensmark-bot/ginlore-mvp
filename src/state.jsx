@@ -16,6 +16,8 @@ import {
   pushState,
   mergeStates,
   fetchCatalog,
+  resetPassword as apiResetPassword,
+  updatePassword as apiUpdatePassword,
 } from './lib/api'
 
 const KEY = 'ginlore-mvp-v2' // v2: hodnocení 1–5 větviček
@@ -128,6 +130,7 @@ export function StoreProvider({ children }) {
   // ── cloud sync (volitelné) ──
   const [user, setUser] = useState(null)
   const [admin, setAdmin] = useState(false)
+  const [recovery, setRecovery] = useState(false) // přišel přes reset-hesla odkaz
   const [sync, setSync] = useState({ status: isBackendEnabled ? 'idle' : 'off', error: null })
   const sRef = useRef(s)
   const pushTimer = useRef(null)
@@ -147,7 +150,11 @@ export function StoreProvider({ children }) {
     if (!isBackendEnabled) return
     let active = true
     getUser().then((u) => active && setUser(u))
-    const unsub = onAuthChange((u) => active && setUser(u))
+    const unsub = onAuthChange((u, event) => {
+      if (!active) return
+      setUser(u)
+      if (event === 'PASSWORD_RECOVERY') setRecovery(true)
+    })
     return () => {
       active = false
       unsub()
@@ -249,6 +256,19 @@ export function StoreProvider({ children }) {
       setUser(null)
       setSync({ status: 'idle', error: null })
       say('Odhlášeno — data zůstávají v tomto zařízení.')
+    },
+    recovery,
+    async resetPassword(email) {
+      return apiResetPassword(email)
+    },
+    async updatePassword(password) {
+      await apiUpdatePassword(password)
+      setRecovery(false)
+      // ukliď recovery token z URL
+      if (typeof window !== 'undefined' && window.history?.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname)
+      }
+      say('Heslo změněno.')
     },
 
     startFresh(name) {

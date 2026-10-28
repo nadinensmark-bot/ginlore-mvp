@@ -5,9 +5,9 @@ import { useStore } from '../state'
 // Účet: přihlášení / registrace + stav synchronizace.
 export default function Ucet() {
   const nav = useNav()
-  const { backendEnabled, user, admin, sync, signIn, signUp } = useStore()
+  const { backendEnabled, user, sync, signIn, signUp, recovery, resetPassword } = useStore()
 
-  const [mode, setMode] = useState('signin') // signin | signup
+  const [mode, setMode] = useState('signin') // signin | signup | reset
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
@@ -17,6 +17,22 @@ export default function Ucet() {
   const submit = async () => {
     setErr('')
     setInfo('')
+    if (mode === 'reset') {
+      if (!email.trim()) {
+        setErr('Vyplň e-mail.')
+        return
+      }
+      setBusy(true)
+      try {
+        await resetPassword(email.trim())
+        setInfo('Poslali jsme ti odkaz na změnu hesla. Otevři ho na tomhle zařízení.')
+      } catch (e) {
+        setErr(prettyErr(e.message))
+      } finally {
+        setBusy(false)
+      }
+      return
+    }
     if (!email.trim() || password.length < 6) {
       setErr('Vyplň e-mail a heslo (aspoň 6 znaků).')
       return
@@ -50,13 +66,21 @@ export default function Ucet() {
         <div className="card">
           <span className="sub">Synchronizace není v této verzi nakonfigurovaná — data zůstávají jen v tomto zařízení.</span>
         </div>
+      ) : recovery ? (
+        <NewPasswordForm />
       ) : user ? (
         <LoggedIn />
       ) : (
         <div className="card" style={{ gap: 12 }}>
           <div>
-            <div className="h2">{mode === 'signup' ? 'Vytvořit účet' : 'Přihlásit se'}</div>
-            <span className="tiny">Ulož si ochutnávky, bar a postup do cloudu — přežijí i na jiném telefonu.</span>
+            <div className="h2">
+              {mode === 'signup' ? 'Vytvořit účet' : mode === 'reset' ? 'Reset hesla' : 'Přihlásit se'}
+            </div>
+            <span className="tiny">
+              {mode === 'reset'
+                ? 'Pošleme ti e-mailem odkaz na nastavení nového hesla.'
+                : 'Ulož si ochutnávky, bar a postup do cloudu — přežijí i na jiném telefonu.'}
+            </span>
           </div>
 
           <input
@@ -67,23 +91,40 @@ export default function Ucet() {
             placeholder="E-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && mode === 'reset' && submit()}
           />
-          <input
-            className="input"
-            type="password"
-            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-            placeholder="Heslo (aspoň 6 znaků)"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && submit()}
-          />
+          {mode !== 'reset' && (
+            <input
+              className="input"
+              type="password"
+              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+              placeholder="Heslo (aspoň 6 znaků)"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submit()}
+            />
+          )}
 
           {err && <span className="tiny" style={{ color: '#a3472e' }}>{err}</span>}
           {info && <span className="tiny" style={{ color: 'var(--accent)' }}>{info}</span>}
 
           <button className={'btn' + (busy ? ' disabled' : '')} onClick={submit} disabled={busy}>
-            {busy ? '…' : mode === 'signup' ? 'Vytvořit účet' : 'Přihlásit se'}
+            {busy ? '…' : mode === 'signup' ? 'Vytvořit účet' : mode === 'reset' ? 'Poslat odkaz' : 'Přihlásit se'}
           </button>
+
+          {mode === 'signin' && (
+            <button
+              className="backlink"
+              style={{ textAlign: 'center' }}
+              onClick={() => {
+                setErr('')
+                setInfo('')
+                setMode('reset')
+              }}
+            >
+              Zapomenuté heslo?
+            </button>
+          )}
 
           <button
             className="backlink"
@@ -91,10 +132,10 @@ export default function Ucet() {
             onClick={() => {
               setErr('')
               setInfo('')
-              setMode(mode === 'signup' ? 'signin' : 'signup')
+              setMode(mode === 'signin' ? 'signup' : 'signin')
             }}
           >
-            {mode === 'signup' ? 'Už mám účet — přihlásit se' : 'Nemám účet — vytvořit'}
+            {mode === 'signin' ? 'Nemám účet — vytvořit' : 'Zpět na přihlášení'}
           </button>
 
           {sync.status === 'error' && (
@@ -103,6 +144,51 @@ export default function Ucet() {
         </div>
       )}
     </>
+  )
+}
+
+function NewPasswordForm() {
+  const { updatePassword } = useStore()
+  const [password, setPassword] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+
+  const save = async () => {
+    setErr('')
+    if (password.length < 6) {
+      setErr('Heslo musí mít aspoň 6 znaků.')
+      return
+    }
+    setBusy(true)
+    try {
+      await updatePassword(password)
+    } catch (e) {
+      setErr(prettyErr(e.message))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="card" style={{ gap: 12 }}>
+      <div>
+        <div className="h2">Nastav nové heslo</div>
+        <span className="tiny">Přišel/a jsi přes odkaz na reset hesla.</span>
+      </div>
+      <input
+        className="input"
+        type="password"
+        autoComplete="new-password"
+        placeholder="Nové heslo (aspoň 6 znaků)"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && save()}
+      />
+      {err && <span className="tiny" style={{ color: '#a3472e' }}>{err}</span>}
+      <button className={'btn' + (busy ? ' disabled' : '')} onClick={save} disabled={busy}>
+        {busy ? '…' : 'Uložit heslo'}
+      </button>
+    </div>
   )
 }
 
